@@ -15,7 +15,7 @@ __name__=="__main__"은 항상 절대경로로 하기
 import sys
 print(sys.path)
 sys.path.append("path you want to specify")
-2.edit the module path
+2)edit the module path
 libraries must be imported as absolute paths in main modules (__name__=="__main__"), not relative paths.
 both are available when it is not the case.
 However,if these types of modul errors occur, then convert a relative path to an absolute path.
