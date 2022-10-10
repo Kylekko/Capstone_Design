@@ -1,0 +1,128 @@
+1.깃허브 커밋 되돌리기
+https://jaddong.tistory.com/entry/%EC%9B%90%EA%B2%A9%EC%A0%80%EC%9E%A5%EC%86%8C%EC%97%90-%EC%98%AC%EB%9D%BC%EA%B0%84-%EC%BB%A4%EB%B0%8B-%EB%90%98%EB%8F%8C%EB%A6%AC%EA%B8%B0
+https://da-nyee.github.io/posts/git-git-reset-git-reflog/
+
+2.깃허브 파일 수정하고 다시 커밋하기
+https://corinediary.tistory.com/7
+https://my-develop-note.tistory.com/44
+https://docs.github.com/en/get-started/using-git/dealing-with-non-fast-forward-errors
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (main)
+$ git init
+Initialized empty Git repository in C:/Users/USER/Desktop/A/.git/
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (master)
+$ git status
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        New/
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (master)
+$ git add *
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (master)
+$ git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   New/README.txt
+        new file:   New/main.py
+        new file:   New/model/hand_model.py
+        new file:   New/model/sign_model.py
+        new file:   New/sign_recorder.py
+        new file:   New/utils/landmark_utils.py
+        new file:   New/utils/mediapipe_utils.py
+
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (master)
+$ git commit -m "files that I uploaded 2days ago/edit module paths/add README"
+[master (root-commit) 4452172] files that I uploaded 2days ago/edit module paths/add README
+ 7 files changed, 411 insertions(+)
+ create mode 100644 New/README.txt
+ create mode 100644 New/main.py
+ create mode 100644 New/model/hand_model.py
+ create mode 100644 New/model/sign_model.py
+ create mode 100644 New/sign_recorder.py
+ create mode 100644 New/utils/landmark_utils.py
+ create mode 100644 New/utils/mediapipe_utils.py
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (master)
+$ git remote add origin https://github.com/Kylekko/Capstone_Design.git
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (master)
+$ git remote -v
+origin  https://github.com/Kylekko/Capstone_Design.git (fetch)
+origin  https://github.com/Kylekko/Capstone_Design.git (push)
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (main)
+$ git pull origin main --allow-unrelated-histories
+방법-> :qa!누른 후 빠져나오기
+
+From https://github.com/Kylekko/Capstone_Design
+ * branch            main       -> FETCH_HEAD
+Merge made by the 'recursive' strategy.
+ dataset/sign1/raw_sign1_left_hand.npy            | Bin 0 -> 16760 bytes
+ dataset/sign1/raw_sign1_pose.npy                 | Bin 0 -> 26264 bytes
+ dataset/sign1/raw_sign1_right_hand.npy           | Bin 0 -> 16760 bytes
+ dataset/sign1/seq_sign1_left_hand.npy            | Bin 0 -> 128 bytes
+ dataset/sign1/seq_sign1_right_hand.npy           | Bin 0 -> 128 bytes
+ dataset/sign2/raw_sign2_left_hand.npy            | Bin 0 -> 16760 bytes
+ dataset/sign2/raw_sign2_pose.npy                 | Bin 0 -> 26264 bytes
+ dataset/sign2/raw_sign2_right_hand.npy           | Bin 0 -> 16760 bytes
+ dataset/sign2/seq_sign2_left_hand.npy            | Bin 0 -> 128 bytes
+ dataset/sign2/seq_sign2_right_hand.npy           | Bin 0 -> 128 bytes
+ main.py                                          |  63 ++++++++++
+ model/__pycache__/hand_model.cpython-38.pyc      | Bin 0 -> 2592 bytes
+ model/__pycache__/sign_model.cpython-38.pyc      | Bin 0 -> 1416 bytes
+ model/hand_model.py                              |  74 +++++++++++
+ model/sign_model.py                              |  31 +++++
+ sign_recorder.py                                 |  17 +++
+ utils/__pycache__/landmark_utils.cpython-38.pyc  | Bin 0 -> 3047 bytes
+ utils/__pycache__/mediapipe_utils.cpython-38.pyc | Bin 0 -> 1270 bytes
+ utils/landmark_utils.py                          | 153 +++++++++++++++++++++++
+ utils/mediapipe_utils.py                         |  48 +++++++
+ 20 files changed, 386 insertions(+)
+ create mode 100644 dataset/sign1/raw_sign1_left_hand.npy
+ create mode 100644 dataset/sign1/raw_sign1_pose.npy
+ create mode 100644 dataset/sign1/raw_sign1_right_hand.npy
+ create mode 100644 dataset/sign1/seq_sign1_left_hand.npy
+ create mode 100644 dataset/sign1/seq_sign1_right_hand.npy
+ create mode 100644 dataset/sign2/raw_sign2_left_hand.npy
+ create mode 100644 dataset/sign2/raw_sign2_pose.npy
+ create mode 100644 dataset/sign2/raw_sign2_right_hand.npy
+ create mode 100644 dataset/sign2/seq_sign2_left_hand.npy
+ create mode 100644 dataset/sign2/seq_sign2_right_hand.npy
+ create mode 100644 main.py
+ create mode 100644 model/__pycache__/hand_model.cpython-38.pyc
+ create mode 100644 model/__pycache__/sign_model.cpython-38.pyc
+ create mode 100644 model/hand_model.py
+ create mode 100644 model/sign_model.py
+ create mode 100644 sign_recorder.py
+ create mode 100644 utils/__pycache__/landmark_utils.cpython-38.pyc
+ create mode 100644 utils/__pycache__/mediapipe_utils.cpython-38.pyc
+ create mode 100644 utils/landmark_utils.py
+ create mode 100644 utils/mediapipe_utils.py
+
+USER@DESKTOP-LMJ5R1L MINGW64 ~/Desktop/A (main)
+$ git push origin main
+Enumerating objects: 14, done.
+Counting objects: 100% (14/14), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (13/13), 5.56 KiB | 1.11 MiB/s, done.
+Total 13 (delta 2), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (2/2), completed with 1 local object.
+To https://github.com/Kylekko/Capstone_Design.git
+   cea3192..8ad2423  main -> main
+
+3.깃허브로 폴더 올리기
+https://dlsdn73.tistory.com/690
