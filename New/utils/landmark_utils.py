@@ -2,8 +2,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time, os
-from .mediapipe_utils import *
-from ..model.sign_model import SignModel
+from New.utils.mediapipe_utils import *
+from New.model.sign_model import SignModel
 #https://woochan-autobiography.tistory.com/855
 #https://velog.io/@jihyeon9975/%EB%94%A5%EB%9F%AC%EB%8B%9D-%EC%88%98%EC%96%B4-%EB%8F%99%EC%9E%91-%EC%9D%B8%EC%8B%9D-%EB%AA%A8%EB%8D%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0
 
@@ -55,18 +55,21 @@ def save_raw_array(landmark_list, actions):
             np.save(os.path.join(f'dataset/{action}', f'raw_{action}_{name}'), data)
             print(name, np.shape(data), "저장완료")
 
-def load_reference_signs(action):
+def load_reference_signs(action): 
+    #create embedded data with raw data
     reference_signs = {"name": [], "sign_model": []}
     path = f'dataset/{action}'
 
-    left_hand_list = np.load(os.path.join(path,f'raw_{action}_left_hand.npy'), allow_pickle=True)
+    #load the presaved raw npy files
+    left_hand_list = np.load(os.path.join(path,f'raw_{action}_left_hand.npy'), allow_pickle=True) 
     right_hand_list = np.load(os.path.join(path,f"raw_{action}_right_hand.npy"), allow_pickle=True)
 
     reference_signs["name"].append('sign_1')
-    a= SignModel(left_hand_list, right_hand_list)
+    a= SignModel(left_hand_list, right_hand_list) #create embeddings(left hand, right hand)
     reference_signs["sign_model"].append(a)
 
-    rec_left_hand = a.lh_embedding
+    #load embedded data created from the SignModel class
+    rec_left_hand = a.lh_embedding 
     rec_right_hand = a.rh_embedding
     return {"right_hand":rec_right_hand, "left_hand":rec_left_hand}
 
