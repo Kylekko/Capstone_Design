@@ -79,12 +79,13 @@ def clear_list(landmark_list):
     landmark_list["left_hand"].clear()
     return landmark_list
 
-def save_seq_array(data, action, hand, seq_length):
+def save_seq_array(data, action, hand, seq_length, idx):
     full_seq_data = []
     for seq in range(len(data) - seq_length):
         full_seq_data.append(data[seq:seq + seq_length])
 
     full_seq_data = np.array(full_seq_data)
+    full_seq_data = np.concatenate([full_seq_data, idx])
     print(action, full_seq_data.shape)
     np.save(os.path.join(f'dataset/{action}', f'seq_{action}_{hand}'), full_seq_data)
 
