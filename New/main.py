@@ -56,12 +56,12 @@ if __name__=="__main__":
             data = load_reference_signs(action) #create embedded data with raw data
 
             # Create sequence data
-            for action in actions:
+            for idx, action in enumerate(actions):
                 #landmark_list key순서가 변경될때마다 담기는 값이 달라짐.e)pose인데 right_hand담김.
                 for (name, landmarks), key in zip(landmark_list.items(), data.keys()):
                     print("+++++++++++++++++++++++++++",name)
                     print("\n\n",data[key],key, action,name,"\n\n~~~~~~~~~~~~~~~~\n")
-                    save_seq_array(data[key], action, name, seq_length) #create sequence data with embedded data
+                    save_seq_array(data[key], action, name, seq_length, idx) #create sequence data with embedded data
 
             landmark_list = clear_list(landmark_list) #clear dic(list)
         break
