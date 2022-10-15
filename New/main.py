@@ -26,7 +26,7 @@ if __name__=="__main__":
 
     # Create the folder of the sign if it doesn't exists
     for action in actions:
-        os.makedirs(f"dataset/{action}", exist_ok=True)
+        os.makedirs(f"dataset/{action}", exist_ok=True) 
 
     landmark_list = {"right_hand": [], "left_hand": [], "pose": []}
     while cap.isOpened():
@@ -42,18 +42,18 @@ if __name__=="__main__":
             start_time = time.time()
             while time.time() - start_time < secs_for_action:
                 _, img = cap.read()
-                img, result = mediapipe_detection(img, hands)
+                img, result = mediapipe_detection(img, hands) #extract landmarks
 
-                landmark_list = append_landmarks_realtime(result, landmark_list)
+                landmark_list = append_landmarks_realtime(result, landmark_list) #save the landmarks in the dic(list)
 
-                draw_styled_landmarks(img, result)
+                draw_styled_landmarks(img, result) #draw landmarks
 
                 cv2.imshow('img', img)
                 if cv2.waitKey(1) == ord('q'):
                     break
 
-            save_raw_array(landmark_list, actions)
-            data = load_reference_signs(action)
+            save_raw_array(landmark_list, actions) #save landmarks
+            data = load_reference_signs(action) #create embedded data with raw data
 
             # Create sequence data
             for action in actions:
@@ -61,7 +61,7 @@ if __name__=="__main__":
                 for (name, landmarks), key in zip(landmark_list.items(), data.keys()):
                     print("+++++++++++++++++++++++++++",name)
                     print("\n\n",data[key],key, action,name,"\n\n~~~~~~~~~~~~~~~~\n")
-                    save_seq_array(data[key], action, name, seq_length)
+                    save_seq_array(data[key], action, name, seq_length) #create sequence data with embedded data
 
-            landmark_list = clear_list(landmark_list)
+            landmark_list = clear_list(landmark_list) #clear dic(list)
         break
