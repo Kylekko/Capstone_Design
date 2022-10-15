@@ -8,6 +8,7 @@ sys.path.append("지정하고자 하는 경로")
 __name__=="__main__"은 항상 절대경로로 하기
 나머지는 절대경로 안되면 상대경로로 변경.
 
+2.파일을 다른곳으로 옮길때 landmark_utils 의 sign_model, mediapipe_utils 모듈 경로 수정 필요. 
 ========================================
 1. When the library paths are not found
 
@@ -19,3 +20,5 @@ sys.path.append("path you want to specify")
 libraries must be imported as absolute paths in main modules (__name__=="__main__"), not relative paths.
 both are available when it is not the case.
 However,if these types of modul errors occur, then convert a relative path to an absolute path.
+
+2.when you move the root file to another place, you need to modify the paths of sign_model, mediapipe_utils of landmark_utils.py
