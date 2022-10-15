@@ -30,12 +30,12 @@ class HandModel(object):
             List of length nb_connections * nb_connections containing
             all the angles between the connections
         """
-        connections = self._get_connections_from_landmarks(landmarks)
+        connections = self._get_connections_from_landmarks(landmarks) #second
 
         angles_list = []
         for connection_from in connections:
             for connection_to in connections:
-                angle = self._get_angle_between_vectors(connection_from, connection_to)
+                angle = self._get_angle_between_vectors(connection_from, connection_to) #third
                 # If the angle is not NaN we store it else we store 0
                 if angle == angle:
                     angles_list.append(angle)
@@ -43,7 +43,7 @@ class HandModel(object):
                     angles_list.append(0)
         return angles_list
 
-    def _get_connections_from_landmarks(
+    def _get_connections_from_landmarks( #second
         self, landmarks: np.ndarray
     ) -> List[np.ndarray]:
         """
@@ -52,6 +52,7 @@ class HandModel(object):
         Return
             List of vectors representing hand connections
         """
+        #list(map(func, list))
         return list(
             map(
                 lambda t: landmarks[t[1]] - landmarks[t[0]],
@@ -60,7 +61,7 @@ class HandModel(object):
         )
 
     @staticmethod
-    def _get_angle_between_vectors(u: np.ndarray, v: np.ndarray) -> float:
+    def _get_angle_between_vectors(u: np.ndarray, v: np.ndarray) -> float: #third
         """
         Args
             u, v: 3D vectors representing two connections
