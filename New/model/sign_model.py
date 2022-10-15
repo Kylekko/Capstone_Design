@@ -16,6 +16,7 @@ class SignModel(object):
         self.has_left_hand = np.sum(left_hand_list) != 0
         self.has_right_hand = np.sum(right_hand_list) != 0
 
+        #save embedded data that is created in the HandModel class
         self.lh_embedding = self._get_embedding_from_landmark_list(left_hand_list)
         self.rh_embedding = self._get_embedding_from_landmark_list(right_hand_list)
 
