@@ -40,7 +40,7 @@ while cap.isOpened():
 
         img = np.array(img)
         cv2.imshow('img', img)
-        cv2.waitKey(5000)
+        cv2.waitKey(8000)
 
         start_time = time.time()
 
