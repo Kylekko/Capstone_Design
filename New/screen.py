@@ -7,6 +7,7 @@ from PIL import ImageFont, ImageDraw, Image
 #데이터수집, 학습, 테스트
 
 flag = 0
+tts_flag = False
 
 def btn_screen():
     btn_img = np.ones((600,150,3), np.uint8)*255
@@ -42,16 +43,23 @@ def click_print(name,flag, param):
         cv2.imshow('video', full_img)
         cv2.waitKey(5000)
 
-    elif flag ==3:
+    elif flag == 3:
+        global tts_flag
         while True:
-            test_model(param, cap)
+            tts_flag = test_model(param, cap, tts_flag)
             if (cv2.waitKey(1) == ord('q')) or (flag == 0):
                break
 
     elif flag == 0:
         screen()
 
+    elif flag == -1: #flag=0일때 중지 다시 누르면 전체종료
+        cap.release()
+        cv2.destroyAllWindows()
+        exit()
+
 def mouse_event(event, x, y, flags, param):
+    global flag
     if event == cv2.EVENT_FLAG_LBUTTON:
         print(x,y)
         if (920<x and x<1030) and (150<y and y<210):
@@ -64,8 +72,12 @@ def mouse_event(event, x, y, flags, param):
             flag = 3
             click_print("테스트",flag,param)
         if (920<x and x<1030) and (450<y and y<510):
-            flag = 0
-            click_print("중지", flag, param)
+            if flag == 0:
+                flag = -1
+                click_print("종료", flag, param)
+            else:
+                flag = 0
+                click_print("중지", flag, param)
 
 def screen():
     btn_img = btn_screen()

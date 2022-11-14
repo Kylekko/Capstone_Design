@@ -13,12 +13,15 @@ from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split
+from threading import Thread
+import pyttsx3
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 font = ImageFont.truetype('./fonts/SCDream6.otf', 20)
 model = load_model('models/model.h5')
+engine = pyttsx3.init()
 path_dir = './dataset'
 seq_length = 10
 secs_for_action = 5#80
@@ -26,6 +29,7 @@ secs_for_action = 5#80
 seq = []
 action_seq = []
 word = []
+content = ''
 
 def draw_word(img, x, y, word, color = 0):
     img = Image.fromarray(img)
@@ -176,10 +180,25 @@ def train_data():
             ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=50, verbose=1, mode='auto')
         ]
     )
+    fig, loss_ax = plt.subplots(figsize=(16, 10))
+    acc_ax = loss_ax.twinx()
+
+    loss_ax.plot(history.history['loss'], 'y', label='train loss')
+    loss_ax.plot(history.history['val_loss'], 'r', label='val loss')
+    loss_ax.set_xlabel('epoch')
+    loss_ax.set_ylabel('loss')
+    loss_ax.legend(loc='upper left')
+
+    acc_ax.plot(history.history['acc'], 'b', label='train acc')
+    acc_ax.plot(history.history['val_acc'], 'g', label='val acc')
+    acc_ax.set_ylabel('accuracy')
+    acc_ax.legend(loc='upper left')
+
+    plt.show()
     return history.history['acc'][-1], history.history['val_acc'][-1]
 
 
-def test_model(btn_img, cap):
+def test_model(btn_img, cap, tts_flag):
     ret, img = cap.read()
     img = cv2.flip(img, 1)
     resize_img = cv2.resize(img, (900, 600))
@@ -188,18 +207,19 @@ def test_model(btn_img, cap):
     if result.multi_hand_landmarks is not None:
         for res in result.multi_hand_landmarks:
             angle, joint = compute_angle(res)
-
             d = np.concatenate([joint.flatten(), angle])
-
             seq.append(d)
             print(np.shape(np.array(seq)))
+
+            if len(seq) > 19: #len(seq) 20으로 유지
+                del seq[0]
             draw_landmarks(img, res, mp_hands, mp_drawing)
 
             if len(seq) < seq_length:
                 continue
 
             # 인퍼런스 한 결과 추출
-            input_data = np.expand_dims(np.array(seq[-seq_length:], dtype=np.float32), axis=0)
+            input_data = np.expand_dims(np.array(seq, dtype=np.float32), axis=0)
 
             # 어떠한 인덱스 인지 뽑아낸다
             y_pred = model.predict(input_data).squeeze()
@@ -221,19 +241,35 @@ def test_model(btn_img, cap):
             if action_seq[-1] == action_seq[-3] == action_seq[-5] == action_seq[-7] == action_seq[-9]:
                 if action == '삭제':
                     word.clear()
+                    tts_flag = False
                 else:
                     word.append(action)
 
+        global content
         content = ''
         for i in word:
             if i in content:
                 pass  # 중복 출력 방지
             else:
                 content += i
-                content += " "
-        img = draw_word(img, 10, 20, content, 255)
+                if i == '.': # .는 문장 끝이라고 생각하고 공백제거
+                    continue
+                else:
+                    content += " "
 
+        if not tts_flag: #한번만 음성지원
+            if (len(content) > 0) and (content[-1] == '.'):
+                Thread(target=tts, args=(content,)).start() #thread로 동시시행
+                tts_flag = True
+
+    if len(content)>0: # 단어가 있어야 표시
+        img = draw_word(img, 10, 40, content, 255)
+
+    img = draw_word(img, 10, 10, "테스트 중...", 255)
     img = cv2.hconcat([img, btn_img])
     cv2.imshow('video', img)
+    return tts_flag
 
-
+def tts(content):
+    engine.say(content)
+    engine.runAndWait()
