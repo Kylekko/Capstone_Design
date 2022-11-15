@@ -24,7 +24,7 @@ model = load_model('models/model.h5')
 engine = pyttsx3.init()
 path_dir = './dataset'
 seq_length = 10
-secs_for_action = 5#80
+secs_for_action = 80
 
 seq = []
 action_seq = []
@@ -72,7 +72,7 @@ def create_seq_data(data, seq_length, action): #create data
     np.save(os.path.join('dataset', f'seq_{action}'), full_seq_data)
 
 def get_actions(): #create data/test
-    with open("labels.txt", "r", encoding='CP949') as f:
+    with open("labels.txt", "r", encoding='UTF8') as f:
         stns = f.readlines()
         f1 = lambda x: x.replace('\n', '')
         actions = list(map(f1, stns))
@@ -174,7 +174,7 @@ def train_data():
         x_train,
         y_train,
         validation_data=(x_val, y_val),
-        epochs= 5,
+        epochs= 200,
         callbacks=[
             ModelCheckpoint('models/model.h5', monitor='val_acc', verbose=1, save_best_only=True, mode='auto'),
             ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=50, verbose=1, mode='auto')
@@ -238,7 +238,7 @@ def test_model(btn_img, cap, tts_flag):
             if len(action_seq) < 20:
                 continue
 
-            if action_seq[-1] == action_seq[-3] == action_seq[-5] == action_seq[-7] == action_seq[-9]:
+            if action_seq[-1] == action_seq[-3] == action_seq[-5] == action_seq[-7]:
                 if action == '삭제':
                     word.clear()
                     tts_flag = False
@@ -271,5 +271,6 @@ def test_model(btn_img, cap, tts_flag):
     return tts_flag
 
 def tts(content):
+    engine.setProperty('rate', 120) # 속도조절 default 200
     engine.say(content)
     engine.runAndWait()
