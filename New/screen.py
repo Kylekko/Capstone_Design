@@ -23,34 +23,39 @@ def btn_screen():
     return btn_img
 
 def click_print(name,flag, param):
-    global cap
+    global cap, tts_flag
     print(name,"출력됨",flag)
-    if flag == 1:
+    if flag == 1: #데이터생성
         create_data(param, cap)
 
-    elif flag == 2:
+    elif flag == 2: #데이터학습
+        #데이터 학습 알림화면표시
         ret, img = cap.read()
         img = cv2.flip(img, 1)
         resize_img = cv2.resize(img, (900, 600))
-        img = draw_word(resize_img, 10, 20, '학습 중..', 255)
+        img = draw_word(resize_img, 10, 20, '학습 중.. (q를 누르면 학습 강제 종료)', 255)
         full_img = cv2.hconcat([img, param])
         cv2.imshow('video', full_img)
         cv2.waitKey(1000)
-        acc, val_acc = train_data()
-        img = draw_word(resize_img, 10, 20, f'acc: {acc}', 255)
-        img = draw_word(img, 10, 50, f'val_acc: {val_acc}', 255)
+        #학습 완료 후 학습률을 화면에 표시
+        try: #콜백함수로 학습 강제 종료 했을 경우 오류메시지발생하므로
+            acc, val_acc = train_data() #학습 정상완료
+            img = draw_word(resize_img, 10, 20, '학습 완료', 255)
+            img = draw_word(img, 10, 50, f'acc: {acc}', 255)
+            img = draw_word(img, 10, 80, f'val_acc: {val_acc}', 255)
+        except:
+            img = draw_word(resize_img, 10, 20, '학습 강제 종료', 255) #학습 강제종료
         full_img = cv2.hconcat([img, param])
         cv2.imshow('video', full_img)
         cv2.waitKey(5000)
 
-    elif flag == 3:
-        global tts_flag
+    elif flag == 3: #테스트
         while True:
             tts_flag = test_model(param, cap, tts_flag)
             if (cv2.waitKey(1) == ord('q')) or (flag == 0):
                break
 
-    elif flag == 0:
+    elif flag == 0: #기본화면
         screen()
 
     elif flag == -1: #flag=0일때 중지 다시 누르면 전체종료

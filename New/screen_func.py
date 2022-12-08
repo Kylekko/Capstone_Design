@@ -5,8 +5,9 @@ from mediapipe_utils import *
 import numpy as np
 import time, os
 import matplotlib.pyplot as plt
-from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model#
 from PIL import ImageFont, ImageDraw, Image
+from tensorflow import keras
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
@@ -26,10 +27,19 @@ path_dir = './dataset'
 seq_length = 10
 secs_for_action = 80
 
+count = 0
 seq = []
 action_seq = []
 word = []
 content = ''
+
+class Stop_training(keras.callbacks.Callback):
+    def on_batch_end(self, batch, logs={}):
+        global callback_chk
+        if cv2.waitKey(1) == ord('q'):
+            self.model.stop_training = True
+            callback_chk = 1
+            return
 
 def draw_word(img, x, y, word, color = 0):
     img = Image.fromarray(img)
@@ -137,6 +147,8 @@ def create_data(btn_img, cap):
         cv2.waitKey(2000)
 
 def train_data():
+    global callback_chk
+    callback_chk = 0
     actions = get_actions()
     data = []
     for name in os.listdir(path_dir):
@@ -145,6 +157,7 @@ def train_data():
             data.extend(a)
 
     data = np.array(data)
+    print(data)
     x_data = data[:, :, :-1]
     labels = data[:, 0, -1]
 
@@ -174,28 +187,32 @@ def train_data():
         x_train,
         y_train,
         validation_data=(x_val, y_val),
-        epochs= 200,
+        epochs= 8,
         callbacks=[
             ModelCheckpoint('models/model.h5', monitor='val_acc', verbose=1, save_best_only=True, mode='auto'),
-            ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=50, verbose=1, mode='auto')
+            ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=50, verbose=1, mode='auto'),
+            Stop_training()
         ]
     )
-    fig, loss_ax = plt.subplots(figsize=(16, 10))
-    acc_ax = loss_ax.twinx()
+    if callback_chk:
+        return
+    else:
+        fig, loss_ax = plt.subplots(figsize=(16, 10))
+        acc_ax = loss_ax.twinx()
 
-    loss_ax.plot(history.history['loss'], 'y', label='train loss')
-    loss_ax.plot(history.history['val_loss'], 'r', label='val loss')
-    loss_ax.set_xlabel('epoch')
-    loss_ax.set_ylabel('loss')
-    loss_ax.legend(loc='upper left')
+        loss_ax.plot(history.history['loss'], 'y', label='train loss')
+        loss_ax.plot(history.history['val_loss'], 'r', label='val loss')
+        loss_ax.set_xlabel('epoch')
+        loss_ax.set_ylabel('loss')
+        loss_ax.legend(loc='upper left')
 
-    acc_ax.plot(history.history['acc'], 'b', label='train acc')
-    acc_ax.plot(history.history['val_acc'], 'g', label='val acc')
-    acc_ax.set_ylabel('accuracy')
-    acc_ax.legend(loc='upper left')
+        acc_ax.plot(history.history['acc'], 'b', label='train acc')
+        acc_ax.plot(history.history['val_acc'], 'g', label='val acc')
+        acc_ax.set_ylabel('accuracy')
+        acc_ax.legend(loc='upper left')
 
-    plt.show()
-    return history.history['acc'][-1], history.history['val_acc'][-1]
+        plt.show()
+        return history.history['acc'][-1], history.history['val_acc'][-1]
 
 
 def test_model(btn_img, cap, tts_flag):
@@ -271,6 +288,11 @@ def test_model(btn_img, cap, tts_flag):
     return tts_flag
 
 def tts(content):
+    global count
+    os.makedirs('./sound_of_handsign_saved', exist_ok=True)
+    dt_now = datetime.datetime.now()
     engine.setProperty('rate', 120) # 속도조절 default 200
     engine.say(content)
+    engine.save_to_file(tt, f'./sound_of_handsign_saved/{dt_now.date()}_{count}.mp3')
     engine.runAndWait()
+    count += 1
