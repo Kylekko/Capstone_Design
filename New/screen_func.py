@@ -3,7 +3,7 @@ import os
 import cv2
 from mediapipe_utils import *
 import numpy as np
-import datetime, os
+import datetime, time, os
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model#
 from PIL import ImageFont, ImageDraw, Image
