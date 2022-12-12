@@ -3,7 +3,7 @@ import os
 import cv2
 from mediapipe_utils import *
 import numpy as np
-import time, os
+import datetime, os
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import load_model#
 from PIL import ImageFont, ImageDraw, Image
@@ -293,6 +293,6 @@ def tts(content):
     dt_now = datetime.datetime.now()
     engine.setProperty('rate', 120) # 속도조절 default 200
     engine.say(content)
-    engine.save_to_file(tt, f'./sound_of_handsign_saved/{dt_now.date()}_{count}.mp3')
+    engine.save_to_file(content, f'./sound_of_handsign_saved/{dt_now.date()}_{count}.mp3')
     engine.runAndWait()
     count += 1
