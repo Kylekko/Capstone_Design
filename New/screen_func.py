@@ -54,10 +54,8 @@ def compute_angle(res): #create/test둘다
         joint[j] = [lm.x, lm.y, lm.z, lm.visibility]
 
     # Compute angles between joints
-    v1 = joint[[0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19],
-         :3]  # Parent joint # joints로 벡터를 계산해서 각도계산
-    v2 = joint[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-         :3]  # Child joint # v2 - v1으로 각도 계산
+    v1 = joint[[0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19], :3]  # Parent joint # joints로 벡터를 계산해서 각도계산
+    v2 = joint[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], :3]  # Child joint # v2 - v1으로 각도 계산
     v = v2 - v1  # [20, 3]
     # Normalize v
     v = v / np.linalg.norm(v, axis=1)[:, np.newaxis]  # 벡터들의 크기를 모두 1로 정규화
@@ -172,12 +170,12 @@ def train_data():
     print(x_val.shape, y_val.shape)
 
     model = Sequential([
-        LSTM(80, activation='relu', input_shape=x_train.shape[1:3]),
-        Dropout(0.3),
-        Dense(40, activation='relu'),
-        Dropout(0.2),
-        Dense(20, activation='relu'),
-        Dense(len(actions), activation='softmax')  # 10
+        LSTM(512, activation='tanh', input_shape=x_train.shape[1:3]),
+        Dropout(0.5),
+        Dense(256, activation='tanh'),
+        Dropout(0.4),
+        Dense(128, activation='tanh'),
+        Dense(len(actions), activation='softmax')  # 35
     ])
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['acc'])
@@ -187,7 +185,7 @@ def train_data():
         x_train,
         y_train,
         validation_data=(x_val, y_val),
-        epochs= 8,
+        epochs= 50,
         callbacks=[
             ModelCheckpoint('models/model.h5', monitor='val_acc', verbose=1, save_best_only=True, mode='auto'),
             ReduceLROnPlateau(monitor='val_acc', factor=0.5, patience=50, verbose=1, mode='auto'),
@@ -197,7 +195,7 @@ def train_data():
     if callback_chk:
         return
     else:
-        fig, loss_ax = plt.subplots(figsize=(16, 10))
+        fig, loss_ax = plt.subplots(figsize=(8, 4)) # inch
         acc_ax = loss_ax.twinx()
 
         loss_ax.plot(history.history['loss'], 'y', label='train loss')
@@ -209,7 +207,7 @@ def train_data():
         acc_ax.plot(history.history['acc'], 'b', label='train acc')
         acc_ax.plot(history.history['val_acc'], 'g', label='val acc')
         acc_ax.set_ylabel('accuracy')
-        acc_ax.legend(loc='upper left')
+        acc_ax.legend(loc='upper right')
 
         plt.show()
         return history.history['acc'][-1], history.history['val_acc'][-1]
@@ -259,6 +257,8 @@ def test_model(btn_img, cap, tts_flag):
                 if action == '삭제':
                     word.clear()
                     tts_flag = False
+                elif action == 'dot':
+                    word.append('.')
                 else:
                     word.append(action)
 
@@ -269,13 +269,13 @@ def test_model(btn_img, cap, tts_flag):
                 pass  # 중복 출력 방지
             else:
                 content += i
-                if i == '.': # .는 문장 끝이라고 생각하고 공백제거
+                if i == 'dot': # .는 문장 끝이라고 생각하고 공백제거
                     continue
                 else:
                     content += " "
 
         if not tts_flag: #한번만 음성지원
-            if (len(content) > 0) and (content[-1] == '.'):
+            if (len(content) > 0) and (content[-1] == 'dot'):
                 Thread(target=tts, args=(content,)).start() #thread로 동시시행
                 tts_flag = True
 
